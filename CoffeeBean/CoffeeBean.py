@@ -65,12 +65,12 @@ for i in range(1, 14):
     print(i)
 
 
-CoffeeBin = pd.DataFrame({'Name': name,
+CoffeeBean = pd.DataFrame({'Name': name,
                           'Address': address,
                           'Lat': lat,
                           'Log': log})
-len(CoffeeBin)
-CoffeeBin.to_csv('CoffeeBin/CoffeeBin.csv')
+len(CoffeeBean)
+CoffeeBean.to_csv('CoffeeBean/CoffeeBean.csv')
 
-data = pd.read_csv('CoffeeBin/CoffeeBin.csv')
+data = pd.read_csv('CoffeeBean/CoffeeBean.csv')
 
