@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 # 데이터 불러오기
-raw_data = pd.read_csv('CoffeeBean/CoffeeBean.csv',
+raw_data = pd.read_csv('CoffeeBean/Data/CoffeeBean_raw.csv',
                        index_col = 0)
 data = raw_data.copy()
 data.head()
@@ -24,14 +24,67 @@ for i in range(len(data)):
 # 분리된 주소 컬럼 추가하기
 data['광역시도'] = City1
 data['시도'] = City2
+data.head()
 
 # 피봇테이블 만들기
 data['입점수'] = 1
+data['광역시도'].unique()
+data['시도'].unique()
+
+for i in range(len(data['광역시도'])):
+    if data['광역시도'][i] == '서울':
+        data['광역시도'][i] = '서울특별시'
+
+    if data['광역시도'][i] == '서울시':
+        data['광역시도'][i] = '서울특별시'
+
+    if data['광역시도'][i] == '경기':
+        data['광역시도'][i] = '경기도'
+
+    if data['광역시도'][i] == '인천시':
+        data['광역시도'][i] = '인천광역시'
+
+    if data['광역시도'][i] == '인천':
+        data['광역시도'][i] = '인천광역시'
+
+    if data['광역시도'][i] == '경남':
+        data['광역시도'][i] = '경상남도'
+
+    if data['광역시도'][i] == '광주':
+        data['광역시도'][i] = '광주광역시'
+
+    if data['광역시도'][i] == '대전':
+        data['광역시도'][i] = '대전광역시'
+
+    if data['광역시도'][i] == '대전시':
+        data['광역시도'][i] = '대전광역시'
+
+    if data['광역시도'][i] == '부산':
+        data['광역시도'][i] = '부산광역시'
+
+    if data['광역시도'][i] == '부산시':
+        data['광역시도'][i] = '부산광역시'
+
+    if data['광역시도'][i] == '충남':
+        data['광역시도'][i] = '충청남도'
+
+    if data['광역시도'][i] == '충북':
+        data['광역시도'][i] = '충청북도'
+
+data.to_csv("CoffeeBean/Data/CoffeeBean2.csv",
+                  encoding='euc-kr',
+                  sep=',')
+
 CoffeeBean = pd.pivot_table(data,
                             values = '입점수',
                             index = ['광역시도', '시도'],
                             aggfunc = 'sum')
 CoffeeBean.reset_index(inplace = True)
+CoffeeBean.head()
+CoffeeBean
+CoffeeBean.to_csv("CoffeeBean/Data/CoffeeBean3.csv",
+                  encoding='euc-kr',
+                  sep=',')
 
 # 몇몇 구를 가진 시를 구별로 나누고 ID 추가하기
 si_name = [None] * len(CoffeeBean)
@@ -78,7 +131,7 @@ for n in CoffeeBean.index:
 
 CoffeeBean['ID'] = si_name
 CoffeeBean
-CoffeeBean.to_csv("CoffeeBean/CoffeeBean1.csv",
+CoffeeBean.to_csv("CoffeeBean/CoffeeBean4.csv",
                   encoding='euc-kr',
                   sep=',')
 
@@ -131,21 +184,23 @@ CoffeeBean = pd.merge(CoffeeBean, draw_korea, how='right', on=['ID'])
 CoffeeBean = CoffeeBean.fillna(0)
 CoffeeBean.head()
 
+CoffeeBean.to_csv("CoffeeBean/Data/CoffeeBean5.csv",
+                  encoding='euc-kr',
+                  sep=',')
+
 mapdata = CoffeeBean.pivot_table(index='y', columns='x', values='입점수')
 masked_mapdata = np.ma.masked_where(np.isnan(mapdata), mapdata)
 mapdata
 
 # 그래프 그리기
-
+# 함수 준비
 import pandas as pd
 import numpy as np
 
 import platform
 import matplotlib.pyplot as plt
 
-% matplotlib
-inline
-
+# 한글 사용하기
 path = "c:/Windows/Fonts/malgun.ttf"
 from matplotlib import font_manager, rc
 
@@ -160,28 +215,7 @@ else:
 plt.rcParams['axes.unicode_minus'] = False
 
 
-# 그림 그리는 함수
-import pandas as pd
-import numpy as np
-
-import platform
-import matplotlib.pyplot as plt
-
-## 한글사용하기
-import platform
-from matplotlib import font_manager, rc
-
-plt.rcParams['axes.unicode_minus'] = False
-
-if platform.system() == 'Darwin':
-    rc('font', family='AppleGothic')
-elif platform.system() == 'Windows':
-    path = "c:/Windows/Fonts/malgun.ttf"
-    font_name = font_manager.FontProperties(fname=path).get_name()
-    rc('font', family=font_name)
-else:
-    print('Unknown system... sorry~~~~')
-
+# 지도 함수 만들기
 def drawKorea(targetData, blockedMap, cmapname):
     gamma = 0.75
 
