@@ -30,40 +30,40 @@ City4 = []
 for i in range(len(data)):
     if data['City2'][i] == '수원시':
         City3.append(data['Address'][i].split()[0])
-        City4.append(' '.join(data['Address'][i].split()[1:3]))
+        City4.append(data['Address'][i].split()[2])
     elif data['City2'][i] == '성남시':
         City3.append(data['Address'][i].split()[0])
-        City4.append(' '.join(data['Address'][i].split()[1:3]))
+        City4.append(data['Address'][i].split()[2])
     elif data['City2'][i] == '안양시':
         City3.append(data['Address'][i].split()[0])
-        City4.append(' '.join(data['Address'][i].split()[1:3]))
+        City4.append(data['Address'][i].split()[2])
     elif data['City2'][i] == '안산시':
         City3.append(data['Address'][i].split()[0])
-        City4.append(' '.join(data['Address'][i].split()[1:3]))
+        City4.append(data['Address'][i].split()[2])
     elif data['City2'][i] == '고양시':
         City3.append(data['Address'][i].split()[0])
-        City4.append(' '.join(data['Address'][i].split()[1:3]))
+        City4.append(data['Address'][i].split()[2])
     elif data['City2'][i] == '용인시':
         City3.append(data['Address'][i].split()[0])
-        City4.append(' '.join(data['Address'][i].split()[1:3]))
+        City4.append(data['Address'][i].split()[2])
     elif data['City2'][i] == '청주시':
         City3.append(data['Address'][i].split()[0])
-        City4.append(' '.join(data['Address'][i].split()[1:3]))
+        City4.append(data['Address'][i].split()[2])
     elif data['City2'][i] == '천안시':
         City3.append(data['Address'][i].split()[0])
-        City4.append(' '.join(data['Address'][i].split()[1:3]))
+        City4.append(data['Address'][i].split()[2])
     elif data['City2'][i] == '전주시':
         City3.append(data['Address'][i].split()[0])
-        City4.append(' '.join(data['Address'][i].split()[1:3]))
+        City4.append(data['Address'][i].split()[2])
     elif data['City2'][i] == '포항시':
         City3.append(data['Address'][i].split()[0])
-        City4.append(' '.join(data['Address'][i].split()[1:3]))
+        City4.append(data['Address'][i].split()[2])
     elif data['City2'][i] == '창원시':
         City3.append(data['Address'][i].split()[0])
-        City4.append(' '.join(data['Address'][i].split()[1:3]))
+        City4.append(data['Address'][i].split()[2])
     elif data['City2'][i] == '부천시':
         City3.append(data['Address'][i].split()[0])
-        City4.append(' '.join(data['Address'][i].split()[1:3]))
+        City4.append(data['Address'][i].split()[2])
     else:
         City3.append(data['Address'][i].split()[0])
         City4.append(data['Address'][i].split()[1])
@@ -72,17 +72,9 @@ data['광역시도'] = City3
 data['시도'] = City4
 del data['City2']
 data.head()
-data['시도'].unique()
-data['시도'].find_all('전주시 송천중앙로')
 
-data.to_csv("Starbucks/Data/Starbucks1.csv",
-                  encoding='euc-kr',
-                  sep=',')
-
-# 피봇테이블 만들기
-data['입점수'] = 1
+# 광역시도 값 확인하고 수정하기
 data['광역시도'].unique()
-data['시도'].unique()
 
 for i in range(len(data['광역시도'])):
     if data['광역시도'][i] == '서울':
@@ -97,21 +89,53 @@ for i in range(len(data['광역시도'])):
     if data['광역시도'][i] == '전북':
         data['광역시도'][i] = '전라북도'
 
-data.to_csv("Starbucks/Data/Starbucks2.csv",
+data['광역시도'].unique()
+
+# 시도 값 확인하고 수정하기
+data['시도'].unique()
+
+data[data['시도'].isin(['부천로'])]
+data['시도'][719] = '원미구'
+
+data[data['시도'].isin(['송내대로'])]
+data['시도'][720] = '원미구'
+
+data[data['시도'].isin(['부흥로'])]
+data['시도'][721] = '원미구'
+
+data[data['시도'].isin(['길주로'])]
+data['시도'][722] = '원미구'
+data['시도'][724] = '원미구'
+
+data[data['시도'].isin(['신흥로'])]
+data['시도'][723] = '원미구'
+
+data[data['시도'].isin(['송천중앙로'])]
+data['시도'][1221] = '덕진구'
+
+data['시도'].unique()
+
+# 입점수 컬럼 추가
+data['입점수'] = 1
+
+data.to_csv("Starbucks/Data/Starbucks1.csv",
                   encoding='euc-kr',
                   sep=',')
 
+# 피봇테이블 만들기
 Starbucks = pd.pivot_table(data,
                            values = '입점수',
                            index = ['광역시도', '시도'],
                            aggfunc = 'sum')
 
-Starbucks.reset_index(inplace=True)
+Starbucks.reset_index(inplace = True)
 Starbucks.head()
-Starbucks['시도'].unique()
-Starbucks.to_csv("Starbucks/Data/Starbucks3.csv",
+
+Starbucks.to_csv("Starbucks/Data/Starbucks2.csv",
                   encoding='euc-kr',
                   sep=',')
+Starbucks = pd.read_csv("Starbucks/Data/Starbucks2.csv",
+                  encoding='euc-kr')
 
 # 몇몇 구를 가진 시를 구별로 나누고 ID 추가하기
 si_name = [None] * len(Starbucks)
@@ -157,8 +181,9 @@ for n in Starbucks.index:
             si_name[n] = Starbucks['광역시도'][n][:2] + ' ' + Starbucks['시도'][n][:-1]
 
 Starbucks['ID'] = si_name
-Starbucks
-Starbucks.to_csv("Starbucks/Data/Starbucks4.csv",
+Starbucks.head()
+
+Starbucks.to_csv("Starbucks/Data/Starbucks3.csv",
                   encoding='euc-kr',
                   sep=',')
 
@@ -206,14 +231,14 @@ BORDER_LINES = [
 set(draw_korea['ID'].unique()) - set(Starbucks['ID'].unique())
 set(Starbucks['ID'].unique()) - set(draw_korea['ID'].unique())
 
-# CoffeeBean과 draw_korea 합치기
-Starbucks = pd.merge(Starbucks, draw_korea, how='right', on=['ID'])
+# Starbucks와 draw_korea 합치기
+Starbucks = pd.merge(Starbucks, draw_korea, how = 'right', on = ['ID'])
 Starbucks = Starbucks.fillna(0)
 Starbucks.head()
 
-Starbucks.to_csv("Starbucks/Data/Starbucks5.csv",
-                  encoding='euc-kr',
-                  sep=',')
+Starbucks.to_csv("Starbucks/Data/Starbucks4.csv",
+                  encoding = 'euc-kr',
+                  sep = ',')
 
 mapdata = Starbucks.pivot_table(index='y', columns='x', values='입점수')
 masked_mapdata = np.ma.masked_where(np.isnan(mapdata), mapdata)
