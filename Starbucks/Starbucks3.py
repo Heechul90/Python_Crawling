@@ -75,3 +75,45 @@ data['시도'] = City4
 data.head()
 del data['City1']
 del data['City2']
+
+data['광역시도'].unique()
+
+for i in range(len(data['광역시도'])):
+    if data['광역시도'][i] == '서울':
+        data['광역시도'][i] = '서울특별시'
+
+    if data['광역시도'][i] == '서울시':
+        data['광역시도'][i] = '서울특별시'
+
+    if data['광역시도'][i] == '경기':
+        data['광역시도'][i] = '경기도'
+
+    if data['광역시도'][i] == '전북':
+        data['광역시도'][i] = '전라북도'
+
+data['광역시도'].unique()
+
+data['시도'].unique()
+
+data[data['시도'].isin(['부천시 부천로'])]
+data['시도'][719] = '부천시 원미구'
+
+data[data['시도'].isin(['부천시 송내대로'])]
+data['시도'][720] = '부천시 원미구'
+
+data[data['시도'].isin(['부천시 부흥로'])]
+data['시도'][721] = '부천시 원미구'
+
+data[data['시도'].isin(['부천시 길주로'])]
+data['시도'][722] = '부천시 원미구'
+data['시도'][724] = '부천시 원미구'
+
+data[data['시도'].isin(['부천시 신흥로'])]
+data['시도'][723] = '부천시 원미구'
+
+data[data['시도'].isin(['전주시 송천중앙로'])]
+data['시도'][1221] = '전주시 덕진구'
+
+data['광역시도'].unique()
+data['시도'].unique()
+data
