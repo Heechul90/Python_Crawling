@@ -8,18 +8,60 @@ import numpy as np
 raw_data = pd.read_csv('Paikdabang/Data/Paikdabang_Raw.csv',
                        encoding = 'euc-kr')
 data = raw_data.copy()
-data.rename(columns = {'상호명': '상호명',
-                       '시도명': '광역시도',
-                       '시군구명': '시도',
-                       '주소': '주소',
+data.rename(columns = {'상호명': 'Name',
+                       '시도명': 'City1',
+                       '시군구명': 'City2',
+                       '주소': 'Address',
                        'Unnamed: 4': '입점수'},
             inplace = True)
 data.head()
 
 # 주소 분리하기
+City3 = []
+City4 = []
+
+for i in range(len(data['City2'])):
+    if len(data['City2'][i].split()) == 2:
+        City3.append(data['Address'][i].split()[0])
+        City4.append(data['City2'][i].split()[1])
+    else:
+        City3.append(data['Address'][i].split()[0])
+        City4.append(data['City2'][i].split()[0])
+
+data['광역시도'] = City3
+data['시도'] = City4
+del data['City1']
+del data['City2']
+data.head()
+
+# 광역시도 값 확인하고 수정하기
 data['광역시도'].unique()
 
-data.to_csv("Paikdabang/Data/Paikdabang2.csv",
+# 시도 값 확인하고 수정하기
+data['시도'].unique()
+
+
+data[data['시도'].isin(['부천시'])]
+data['시도'][0] = '원미구'
+data['시도'][1] = '원미구'
+data['시도'][5] = '원미구'
+data['시도'][8] = '원미구'
+data['시도'][14] = '원미구'
+data['시도'][31] = '원미구'
+data['시도'][32] = '소사구'
+data['시도'][34] = '소사구'
+data['시도'][56] = '소사구'
+data['시도'][63] = '소사구'
+data['시도'][66] = '오정구'
+data['시도'][69] = '오정구'
+data['시도'][82] = '오정구'
+data['시도'][153] = '오정구'
+
+data['시도'].unique()
+
+# 입점수 컬럼 추가
+
+data.to_csv("Paikdabang/Data/Paikdabang1.csv",
                   encoding='euc-kr',
                   sep=',')
 
@@ -31,9 +73,12 @@ Paikdabang = pd.pivot_table(data,
 Paikdabang.reset_index(inplace = True)
 Paikdabang.head()
 Paikdabang
-Paikdabang.to_csv('Paikdabang/Data/Paikdabang3.csv',
+Paikdabang.to_csv('Paikdabang/Data/Paikdabang2.csv',
                   encoding = 'euc-kr',
                   sep = ',')
+
+Paikdabang = pd.read_csv('Paikdabang/Data/Paikdabang2.csv',
+                  encoding = 'euc-kr')
 
 ## 몇몇 구를 가진 시를 구별로 나누고 ID추가하기
 si_name = [None] * len(Paikdabang)
@@ -80,7 +125,7 @@ for n in Paikdabang.index:
 
 Paikdabang['ID'] = si_name
 Paikdabang
-Paikdabang.to_csv("Paikdabang/Data/Paikdabang4.csv",
+Paikdabang.to_csv("Paikdabang/Data/Paikdabang3.csv",
                   encoding='euc-kr',
                   sep=',')
 
@@ -133,7 +178,7 @@ Paikdabang = pd.merge(Paikdabang, draw_korea, how='right', on=['ID'])
 Paikdabang = Paikdabang.fillna(0)
 Paikdabang.head()
 
-Paikdabang.to_csv("Paikdabang/Data/Paikdabang5.csv",
+Paikdabang.to_csv("Paikdabang/Data/Paikdabang4.csv",
                   encoding='euc-kr',
                   sep=',')
 

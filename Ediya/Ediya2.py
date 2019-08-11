@@ -7,23 +7,31 @@ import numpy as np
 raw_data = pd.read_csv('Ediya/Data/Ediya_Raw.csv',
                        encoding = 'euc-kr')
 data = raw_data.copy()
+data.rename(columns = {'brand': 'Brand',
+                       'address': 'Address',
+                       'count': '입점수'},
+            inplace = True)
 data.head()
 
 # 주소 분리하기
-data['address'][0].split()[0]
-data['address'][0].split()[1]
+data['Address'][0].split()[0]
+data['Address'][0].split()[1]
 
 City1 = []
 City2 = []
 
-for i in range(len(data['address'])):
+for i in range(len(data['Address'])):
 
-    City1.append(data['address'][i].split()[0])
-    City2.append(data['address'][i].split()[1])
+    City1.append(data['Address'][i].split()[0])
+    City2.append(data['Address'][i].split()[1])
 
-# 분리된 주소 컬럼 추가하기
-data['광역시도'] = City1
-data['시도'] = City2
+
+data['City2'] = City2
+
+
+
+
+
 data.rename(columns = {'count': '입점수'},
             inplace = True)
 data.head()
