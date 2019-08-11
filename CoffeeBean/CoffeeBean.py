@@ -10,7 +10,7 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 
-from selenium.webdriver.common.keys import Keys
+
 # 참고 https://brunch.co.kr/@jk-lab/18
 
 
@@ -64,13 +64,21 @@ for i in range(1, 14):
 
     print(i)
 
+name
+len(address)
+lat
+log
 
 CoffeeBean = pd.DataFrame({'Name': name,
                           'Address': address,
                           'Lat': lat,
                           'Log': log})
 len(CoffeeBean)
-CoffeeBean.to_csv('CoffeeBean/CoffeeBean.csv')
 
-data = pd.read_csv('CoffeeBean/CoffeeBean.csv')
+CoffeeBean.to_csv('CoffeeBean/Data/CoffeeBean_Raw.csv',
+                  encoding = 'euc-kr',
+                  sep = ',')
+
+data = pd.read_csv('CoffeeBean/Data/CoffeeBean_Raw.csv',
+                  encoding = 'euc-kr')
 

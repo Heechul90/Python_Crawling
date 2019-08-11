@@ -6,6 +6,7 @@ import numpy as np
 
 # 데이터 불러오기
 raw_data = pd.read_csv('CoffeeBean/Data/CoffeeBean_raw.csv',
+                       encoding = 'euc-kr',
                        index_col = 0)
 data = raw_data.copy()
 data.head()
@@ -134,7 +135,7 @@ data[data['시도'].isin(['부천로4'])]
 data['시도'][93] = '소사구'
 
 data[data['시도'].isin(['세종로'])]
-data['시도'][150] = '세종시'
+data['시도'][150] = '세종특별자치시'
 
 data['시도'].unique()
 

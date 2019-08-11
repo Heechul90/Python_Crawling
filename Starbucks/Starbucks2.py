@@ -6,6 +6,7 @@ import numpy as np
 
 # 데이터 불러오기
 raw_data = pd.read_csv('Starbucks/Data/Starbucks_Raw.csv',
+                       encoding = 'euc-kr',
                        index_col = 0)
 data = raw_data.copy()
 data.head()
@@ -112,6 +113,26 @@ data['시도'][723] = '원미구'
 
 data[data['시도'].isin(['송천중앙로'])]
 data['시도'][1221] = '덕진구'
+
+data[data['시도'].isin(['다정북로'])]
+data['시도'][1301] = '세종특별자치시'
+
+data[data['시도'].isin(['새롬중앙로'])]
+data['시도'][1302] = '세종특별자치시'
+
+data[data['시도'].isin(['한누리대로'])]
+data['시도'][1303] = '세종특별자치시'
+data['시도'][1305] = '세종특별자치시'
+
+data[data['시도'].isin(['도움3로'])]
+data['시도'][1304] = '세종특별자치시'
+
+data[data['시도'].isin(['금송로'])]
+data['시도'][1306] = '세종특별자치시'
+
+data[data['시도'].isin(['도움8로'])]
+data['시도'][1307] = '세종특별자치시'
+
 
 data['시도'].unique()
 

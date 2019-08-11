@@ -1,105 +1,55 @@
-### 이디야 커피지수
+### 커피 지수
 
+# 함수준비
 import pandas as pd
 import numpy as np
 
 # 데이터 불러오기
-raw_data = pd.read_csv('Ediya/Data/Ediya_Raw.csv',
-                       encoding = 'euc-kr')
-data = raw_data.copy()
-data.rename(columns = {'brand': 'Brand',
-                       'address': 'Address',
-                       'count': '입점수'},
-            inplace = True)
-data.head()
+CoffeeBean = pd.read_csv('CoffeeBean/Data/CoffeeBean3.csv',
+                        encoding = 'euc-kr',
+                        index_col = 0)
+Ediya = pd.read_csv('Ediya/Data/Ediya4.csv',
+                        encoding = 'euc-kr',
+                        index_col = 0)
+Paikdabang = pd.read_csv('Paikdabang/Data/Paikdabang3.csv',
+                        encoding = 'euc-kr',
+                        index_col = 0)
+del Paikdabang['Unnamed: 0.1']
+Starbucks = pd.read_csv('Starbucks/Data/Starbucks3.csv',
+                        encoding = 'euc-kr',
+                        index_col = 0)
 
-# 주소 분리하기
-data['Address'][0].split()[0]
-data['Address'][0].split()[1]
+# 컬럼 ID, 입점수만
+CoffeeBean = CoffeeBean[['ID', '입점수']]
+Ediya = Ediya[['ID', '입점수']]
+Paikdabang = Paikdabang[['ID', '입점수']]
+Starbucks = Starbucks[['ID', '입점수']]
+Starbucks[Starbucks['ID'].isin(['원주'])]
 
-City1 = []
-City2 = []
+# 데이터 합치기
+Coffee = pd.merge(CoffeeBean, Ediya, on = 'ID', how = 'right')
+Coffee.rename(columns = {'입점수_x': 'CoffeeBean',
+                         '입점수_y': 'Ediya'},
+              inplace = True)
 
-for i in range(len(data['Address'])):
+Coffee = pd.merge(Coffee, Paikdabang, on = 'ID', how = 'right')
+Coffee = pd.merge(Coffee, Starbucks, on = 'ID', how = 'right')
 
-    City1.append(data['Address'][i].split()[0])
-    City2.append(data['Address'][i].split()[1])
+Coffee.rename(columns = {'입점수_x': 'Paikdabang',
+                         '입점수': 'Starbucks'},
+              inplace = True)
 
-data['광역시도'] = City1
-data['시도'] = City2
+Coffee = Coffee.fillna(0)
+Coffee.head()
+Coffee.to_csv('Coffee_Index1.csv',
+              encoding = 'euc-kr',
+              sep = ',')
 
-data.rename(columns = {'count': '입점수'},
-            inplace = True)
-data.head()
+# 합계 만들기
+Coffee['총매장수'] = Coffee['CoffeeBean'] + Coffee['Ediya'] + Coffee['Paikdabang'] + Coffee['Starbucks']
+Coffee.head()
 
-# 데이터 수정
-data['광역시도'].unique()
-data['시도'].unique()
-
-data.to_csv("Ediya/Data/Ediya2.csv",
-                  encoding='euc-kr',
-                  sep=',')
-
-# 피봇테이블 만들기
-Ediya = pd.pivot_table(data,
-                       values = '입점수',
-                       index = ['광역시도', '시도'],
-                       aggfunc = 'sum')
-Ediya.reset_index(inplace = True)
-Ediya.head()
-Ediya
-Ediya.to_csv('Ediya/Data/Ediya3.csv',
-             encoding = 'euc-kr',
-             sep = ',')
-
-# 몇몇 구를 가진 시를 구별로 나누고 ID 추가하기
-si_name = [None] * len(Ediya)
-
-tmp_gu_dict = {'수원':['장안구', '권선구', '팔달구', '영통구'],
-                       '성남':['수정구', '중원구', '분당구'],
-                       '안양':['만안구', '동안구'],
-                       '안산':['상록구', '단원구'],
-                       '고양':['덕양구', '일산동구', '일산서구'],
-                       '용인':['처인구', '기흥구', '수지구'],
-                       '청주':['상당구', '서원구', '흥덕구', '청원구'],
-                       '천안':['동남구', '서북구'],
-                       '전주':['완산구', '덕진구'],
-                       '포항':['남구', '북구'],
-                       '창원':['의창구', '성산구', '진해구', '마산합포구', '마산회원구'],
-                       '부천':['오정구', '원미구', '소사구']}
-
-for n in Ediya.index:
-    if Ediya['광역시도'][n][-3:] not in ['광역시', '특별시', '자치시']:
-        if Ediya['시도'][n][:-1] == '고성' and Ediya['광역시도'][n] == '강원도':
-            si_name[n] = '고성(강원)'
-        elif Ediya['시도'][n][:-1] == '고성' and Ediya['광역시도'][n] == '경상남도':
-            si_name[n] = '고성(경남)'
-        else:
-            si_name[n] = Ediya['시도'][n][:-1]
-
-        for keys, values in tmp_gu_dict.items():
-            if Ediya['시도'][n] in values:
-                if len(Ediya['시도'][n]) == 2:
-                    si_name[n] = keys + ' ' + Ediya['시도'][n]
-                elif Ediya['시도'][n] in ['마산합포구', '마산회원구']:
-                    si_name[n] = keys + ' ' + Ediya['시도'][n][2:-1]
-                else:
-                    si_name[n] = keys + ' ' + Ediya['시도'][n][:-1]
-
-    elif Ediya['광역시도'][n] == '세종특별자치시':
-        si_name[n] = '세종'
-
-    else:
-        if len(Ediya['시도'][n]) == 2:
-            si_name[n] = Ediya['광역시도'][n][:2] + ' ' + Ediya['시도'][n]
-        else:
-            si_name[n] = Ediya['광역시도'][n][:2] + ' ' + Ediya['시도'][n][:-1]
-
-Ediya['ID'] = si_name
-Ediya
-Ediya.to_csv("Ediya/Data/Ediya4.csv",
-                  encoding='euc-kr',
-                  sep=',')
+Coffee_Index = Coffee.copy()
 
 # 엑셀로된 지도 파일 불러오기
 draw_korea_raw = pd.read_excel('05. draw_korea_raw.xlsx', encoding = 'euc-kr')
@@ -142,27 +92,24 @@ BORDER_LINES = [
     [(27,5), (27,6), (25,6)],
 ]
 
-set(draw_korea['ID'].unique()) - set(Ediya['ID'].unique())
-set(Ediya['ID'].unique()) - set(draw_korea['ID'].unique())
+set(draw_korea['ID'].unique()) - set(Paikdabang['ID'].unique())
+set(Paikdabang['ID'].unique()) - set(draw_korea['ID'].unique())
 
-# CoffeeBean과 draw_korea 합치기
-Ediya = pd.merge(Ediya, draw_korea, how='right', on=['ID'])
-Ediya = Ediya.fillna(0)
-Ediya.head()
+# Coffee_Index와 draw_korea 합치기
+Coffee_Index = pd.merge(Coffee_Index, draw_korea, how='right', on=['ID'])
+Coffee_Index = Coffee_Index.fillna(0)
+Coffee_Index.head()
 
-Ediya.to_csv("Ediya/Data/Ediya5.csv",
+Coffee_Index.to_csv("Coffee_Index2.csv",
                   encoding='euc-kr',
                   sep=',')
 
-mapdata = Ediya.pivot_table(index='y', columns='x', values='입점수')
+mapdata = Coffee_Index.pivot_table(index='y', columns='x', values='총매장수')
 masked_mapdata = np.ma.masked_where(np.isnan(mapdata), mapdata)
 mapdata
 
 # 그래프 그리기
 # 함수 준비
-import pandas as pd
-import numpy as np
-
 import platform
 import matplotlib.pyplot as plt
 
@@ -240,4 +187,4 @@ def drawKorea(targetData, blockedMap, cmapname):
 
 # 지도 그리기
 
-drawKorea('입점수', Ediya, 'Blues')
+drawKorea('총매장수', Coffee_Index, 'Blues')
