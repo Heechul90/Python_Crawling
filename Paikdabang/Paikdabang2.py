@@ -1,94 +1,42 @@
-### 커피빈 커피지수
+### 빽다방 커피지수
 
-# 모듈, 함수 준비하기
 import pandas as pd
 import numpy as np
 
+
 # 데이터 불러오기
-raw_data = pd.read_csv('CoffeeBean/Data/CoffeeBean_raw.csv',
-                       index_col = 0)
+raw_data = pd.read_csv('Paikdabang/Data/Paikdabang_Raw.csv',
+                       encoding = 'euc-kr')
 data = raw_data.copy()
+data.rename(columns = {'상호명': '상호명',
+                       '시도명': '광역시도',
+                       '시군구명': '시도',
+                       '주소': '주소',
+                       'Unnamed: 4': '입점수'},
+            inplace = True)
 data.head()
 
 # 주소 분리하기
-data['Address'][0].split()[0]
-data['Address'][0].split()[1]
-
-City1 = []
-City2 = []
-
-for i in range(len(data)):
-    City1.append(data['Address'][i].split()[0])
-    City2.append(data['Address'][i].split()[1])
-
-# 분리된 주소 컬럼 추가하기
-data['광역시도'] = City1
-data['시도'] = City2
-data.head()
-
-# 피봇테이블 만들기
-data['입점수'] = 1
 data['광역시도'].unique()
-data['시도'].unique()
 
-for i in range(len(data['광역시도'])):
-    if data['광역시도'][i] == '서울':
-        data['광역시도'][i] = '서울특별시'
-
-    if data['광역시도'][i] == '서울시':
-        data['광역시도'][i] = '서울특별시'
-
-    if data['광역시도'][i] == '경기':
-        data['광역시도'][i] = '경기도'
-
-    if data['광역시도'][i] == '인천시':
-        data['광역시도'][i] = '인천광역시'
-
-    if data['광역시도'][i] == '인천':
-        data['광역시도'][i] = '인천광역시'
-
-    if data['광역시도'][i] == '경남':
-        data['광역시도'][i] = '경상남도'
-
-    if data['광역시도'][i] == '광주':
-        data['광역시도'][i] = '광주광역시'
-
-    if data['광역시도'][i] == '대전':
-        data['광역시도'][i] = '대전광역시'
-
-    if data['광역시도'][i] == '대전시':
-        data['광역시도'][i] = '대전광역시'
-
-    if data['광역시도'][i] == '부산':
-        data['광역시도'][i] = '부산광역시'
-
-    if data['광역시도'][i] == '부산시':
-        data['광역시도'][i] = '부산광역시'
-
-    if data['광역시도'][i] == '충남':
-        data['광역시도'][i] = '충청남도'
-
-    if data['광역시도'][i] == '충북':
-        data['광역시도'][i] = '충청북도'
-
-data.to_csv("CoffeeBean/Data/CoffeeBean2.csv",
+data.to_csv("Paikdabang/Data/Paikdabang2.csv",
                   encoding='euc-kr',
                   sep=',')
 
 # 피봇테이블 만들기
-CoffeeBean = pd.pivot_table(data,
+Paikdabang = pd.pivot_table(data,
                             values = '입점수',
                             index = ['광역시도', '시도'],
                             aggfunc = 'sum')
-CoffeeBean.reset_index(inplace = True)
-CoffeeBean.head()
-CoffeeBean
-CoffeeBean.to_csv("CoffeeBean/Data/CoffeeBean3.csv",
-                  encoding='euc-kr',
-                  sep=',')
+Paikdabang.reset_index(inplace = True)
+Paikdabang.head()
+Paikdabang
+Paikdabang.to_csv('Paikdabang/Data/Paikdabang3.csv',
+                  encoding = 'euc-kr',
+                  sep = ',')
 
-# 몇몇 구를 가진 시를 구별로 나누고 ID 추가하기
-si_name = [None] * len(CoffeeBean)
+## 몇몇 구를 가진 시를 구별로 나누고 ID추가하기
+si_name = [None] * len(Paikdabang)
 
 tmp_gu_dict = {'수원':['장안구', '권선구', '팔달구', '영통구'],
                        '성남':['수정구', '중원구', '분당구'],
@@ -103,36 +51,36 @@ tmp_gu_dict = {'수원':['장안구', '권선구', '팔달구', '영통구'],
                        '창원':['의창구', '성산구', '진해구', '마산합포구', '마산회원구'],
                        '부천':['오정구', '원미구', '소사구']}
 
-for n in CoffeeBean.index:
-    if CoffeeBean['광역시도'][n][-3:] not in ['광역시', '특별시', '자치시']:
-        if CoffeeBean['시도'][n][:-1] == '고성' and CoffeeBean['광역시도'][n] == '강원도':
+for n in Paikdabang.index:
+    if Paikdabang['광역시도'][n][-3:] not in ['광역시', '특별시', '자치시']:
+        if Paikdabang['시도'][n][:-1] == '고성' and Paikdabang['광역시도'][n] == '강원도':
             si_name[n] = '고성(강원)'
-        elif CoffeeBean['시도'][n][:-1] == '고성' and CoffeeBean['광역시도'][n] == '경상남도':
+        elif Paikdabang['시도'][n][:-1] == '고성' and Paikdabang['광역시도'][n] == '경상남도':
             si_name[n] = '고성(경남)'
         else:
-            si_name[n] = CoffeeBean['시도'][n][:-1]
+            si_name[n] = Paikdabang['시도'][n][:-1]
 
         for keys, values in tmp_gu_dict.items():
-            if CoffeeBean['시도'][n] in values:
-                if len(CoffeeBean['시도'][n]) == 2:
-                    si_name[n] = keys + ' ' + CoffeeBean['시도'][n]
-                elif CoffeeBean['시도'][n] in ['마산합포구', '마산회원구']:
-                    si_name[n] = keys + ' ' + CoffeeBean['시도'][n][2:-1]
+            if Paikdabang['시도'][n] in values:
+                if len(Paikdabang['시도'][n]) == 2:
+                    si_name[n] = keys + ' ' + Paikdabang['시도'][n]
+                elif Paikdabang['시도'][n] in ['마산합포구', '마산회원구']:
+                    si_name[n] = keys + ' ' + Paikdabang['시도'][n][2:-1]
                 else:
-                    si_name[n] = keys + ' ' + CoffeeBean['시도'][n][:-1]
+                    si_name[n] = keys + ' ' + Paikdabang['시도'][n][:-1]
 
-    elif CoffeeBean['광역시도'][n] == '세종특별자치시':
+    elif Paikdabang['광역시도'][n] == '세종특별자치시':
         si_name[n] = '세종'
 
     else:
-        if len(CoffeeBean['시도'][n]) == 2:
-            si_name[n] = CoffeeBean['광역시도'][n][:2] + ' ' + CoffeeBean['시도'][n]
+        if len(Paikdabang['시도'][n]) == 2:
+            si_name[n] = Paikdabang['광역시도'][n][:2] + ' ' + Paikdabang['시도'][n]
         else:
-            si_name[n] = CoffeeBean['광역시도'][n][:2] + ' ' + CoffeeBean['시도'][n][:-1]
+            si_name[n] = Paikdabang['광역시도'][n][:2] + ' ' + Paikdabang['시도'][n][:-1]
 
-CoffeeBean['ID'] = si_name
-CoffeeBean
-CoffeeBean.to_csv("CoffeeBean/Data/CoffeeBean4.csv",
+Paikdabang['ID'] = si_name
+Paikdabang
+Paikdabang.to_csv("Paikdabang/Data/Paikdabang4.csv",
                   encoding='euc-kr',
                   sep=',')
 
@@ -177,27 +125,24 @@ BORDER_LINES = [
     [(27,5), (27,6), (25,6)],
 ]
 
-set(draw_korea['ID'].unique()) - set(CoffeeBean['ID'].unique())
-set(CoffeeBean['ID'].unique()) - set(draw_korea['ID'].unique())
+set(draw_korea['ID'].unique()) - set(Paikdabang['ID'].unique())
+set(Paikdabang['ID'].unique()) - set(draw_korea['ID'].unique())
 
 # CoffeeBean과 draw_korea 합치기
-CoffeeBean = pd.merge(CoffeeBean, draw_korea, how='right', on=['ID'])
-CoffeeBean = CoffeeBean.fillna(0)
-CoffeeBean.head()
+Paikdabang = pd.merge(Paikdabang, draw_korea, how='right', on=['ID'])
+Paikdabang = Paikdabang.fillna(0)
+Paikdabang.head()
 
-CoffeeBean.to_csv("CoffeeBean/Data/CoffeeBean5.csv",
+Paikdabang.to_csv("Paikdabang/Data/Paikdabang5.csv",
                   encoding='euc-kr',
                   sep=',')
 
-mapdata = CoffeeBean.pivot_table(index='y', columns='x', values='입점수')
+mapdata = Paikdabang.pivot_table(index='y', columns='x', values='입점수')
 masked_mapdata = np.ma.masked_where(np.isnan(mapdata), mapdata)
 mapdata
 
 # 그래프 그리기
 # 함수 준비
-import pandas as pd
-import numpy as np
-
 import platform
 import matplotlib.pyplot as plt
 
@@ -275,4 +220,4 @@ def drawKorea(targetData, blockedMap, cmapname):
 
 # 지도 그리기
 
-drawKorea('입점수', CoffeeBean, 'Blues')
+drawKorea('입점수', Paikdabang, 'Blues')
