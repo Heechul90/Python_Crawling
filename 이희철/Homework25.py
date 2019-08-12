@@ -5,16 +5,16 @@ import pandas as pd
 import numpy as np
 
 # 데이터 불러오기
-CoffeeBean = pd.read_csv('CoffeeBean/Data/CoffeeBean3.csv',
+CoffeeBean = pd.read_csv('이희철/CoffeeBean3.csv',
                         encoding = 'euc-kr',
                         index_col = 0)
-Ediya = pd.read_csv('Ediya/Data/Ediya4.csv',
+Ediya = pd.read_csv('이희철/Ediya4.csv',
                         encoding = 'euc-kr',
                         index_col = 0)
-Paikdabang = pd.read_csv('Paikdabang/Data/Paikdabang3.csv',
+Paikdabang = pd.read_csv('이희철/Paikdabang3.csv',
                         encoding = 'euc-kr',
                         index_col = 0)
-Starbucks = pd.read_csv('Starbucks/Data/Starbucks3.csv',
+Starbucks = pd.read_csv('이희철/Starbucks3.csv',
                         encoding = 'euc-kr',
                         index_col = 0)
 
@@ -37,23 +37,13 @@ Coffee.rename(columns = {'입점수_x': 'CoffeeBean',
 Coffee = Coffee.fillna(0)
 Coffee.head()
 
-Coffee.to_csv('Coffee_Index1.csv',
-              encoding = 'euc-kr',
-              sep = ',')
-
 # 합계 만들기
 Coffee['총매장수'] = Coffee['CoffeeBean'] + Coffee['Paikdabang'] + Coffee['Starbucks']
 Coffee.head()
-
-Coffee.to_csv('Coffee_Index2.csv',
-              encoding = 'euc-kr',
-              sep = ',')
-
 Coffee_Index = Coffee.copy()
 
-
 # 엑셀로된 지도 파일 불러오기
-draw_korea_raw = pd.read_excel('05. draw_korea_raw.xlsx', encoding = 'euc-kr')
+draw_korea_raw = pd.read_excel('이희철/05. draw_korea_raw.xlsx', encoding = 'euc-kr')
 draw_korea_raw
 
 # stack으로 풀고 index로 재설정
@@ -100,10 +90,6 @@ set(Coffee_Index['ID'].unique()) - set(draw_korea['ID'].unique())
 Coffee_Index = pd.merge(Coffee_Index, draw_korea, how='right', on=['ID'])
 Coffee_Index = Coffee_Index.fillna(0)
 Coffee_Index.head()
-
-Coffee_Index.to_csv("Coffee_Index3.csv",
-                  encoding='euc-kr',
-                  sep=',')
 
 mapdata = Coffee_Index.pivot_table(index='y', columns='x', values='총매장수')
 masked_mapdata = np.ma.masked_where(np.isnan(mapdata), mapdata)
@@ -189,5 +175,15 @@ def drawKorea(targetData, blockedMap, cmapname):
     plt.show()
 
 # 지도 그리기
+# 커피빈 지도맵
+drawKorea('CoffeeBean', Coffee_Index, 'Blues')
 
+# 빽다방 지도맵
+drawKorea('Paikdabang', Coffee_Index, 'Blues')
+
+# 스타벅스 지도맵
+drawKorea('Starbucks', Coffee_Index, 'Blues')
+
+# 총매장수 지도맵
 drawKorea('총매장수', Coffee_Index, 'Blues')
+
