@@ -44,7 +44,8 @@ Bible = pd.DataFrame({'장': Chapter,
                       '절': Part,
                       '말씀': Bible_content})
 len(Bible)
-Bible
+Bible.columns
+
 
 Bible.to_csv('Bible/Data/Bible_Raw.csv',
              encoding = 'euc-kr',
@@ -52,3 +53,4 @@ Bible.to_csv('Bible/Data/Bible_Raw.csv',
 
 data = pd.read_csv('Bible/Data/Bible_Raw.csv',
                  encoding = 'euc-kr')
+
