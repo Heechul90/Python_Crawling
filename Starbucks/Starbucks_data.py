@@ -11,6 +11,7 @@ raw_data
 
 data = raw_data.copy()
 data.head()
+data
 
 data['City'] = []
 
