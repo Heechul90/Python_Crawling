@@ -5,16 +5,16 @@ import pandas as pd
 import numpy as np
 
 # 데이터 불러오기
-CoffeeBean = pd.read_csv('이희철/CoffeeBean3.csv',
+CoffeeBean = pd.read_csv('Homework/CoffeeBean3.csv',
                         encoding = 'euc-kr',
                         index_col = 0)
-Ediya = pd.read_csv('이희철/Ediya4.csv',
+Ediya = pd.read_csv('Homework/Ediya3.csv',
                         encoding = 'euc-kr',
                         index_col = 0)
-Paikdabang = pd.read_csv('이희철/Paikdabang3.csv',
+Paikdabang = pd.read_csv('Homework/Paikdabang3.csv',
                         encoding = 'euc-kr',
                         index_col = 0)
-Starbucks = pd.read_csv('이희철/Starbucks3.csv',
+Starbucks = pd.read_csv('Homework/Starbucks3.csv',
                         encoding = 'euc-kr',
                         index_col = 0)
 
@@ -26,24 +26,34 @@ Paikdabang = Paikdabang[['ID', '입점수']]
 Starbucks = Starbucks[['ID', '입점수']]
 
 # 데이터 합치기(Ediya는 ID 컬럼의 값이 시의 구가 적용되지 않아 제외하고 merge함)
+CoffeeBean[CoffeeBean['ID'].isin(['원주'])]
+Paikdabang[Paikdabang['ID'].isin(['원주'])]
+Starbucks[Starbucks['ID'].isin(['원주'])]
+Ediya[Ediya['ID'].isin(['원주'])]
 
 Coffee = pd.merge(CoffeeBean, Paikdabang, on = 'ID', how = 'right')
 Coffee = pd.merge(Coffee, Starbucks, on = 'ID', how = 'right')
+
 Coffee.rename(columns = {'입점수_x': 'CoffeeBean',
                          '입점수_y': 'Paikdabang',
                          '입점수': 'Starbucks'},
               inplace = True)
 
+Coffee = pd.merge(Coffee, Ediya, on = 'ID', how = 'right')
+Coffee.rename(columns = {'입점수': 'Ediya'},
+              inplace = True)
+
 Coffee = Coffee.fillna(0)
+
 Coffee.head()
 
 # 합계 만들기
-Coffee['총매장수'] = Coffee['CoffeeBean'] + Coffee['Paikdabang'] + Coffee['Starbucks']
+Coffee['총매장수'] = Coffee['CoffeeBean'] + Coffee['Paikdabang'] + Coffee['Starbucks'] + Coffee['Ediya']
 Coffee.head()
 Coffee_Index = Coffee.copy()
 
 # 엑셀로된 지도 파일 불러오기
-draw_korea_raw = pd.read_excel('이희철/05. draw_korea_raw.xlsx', encoding = 'euc-kr')
+draw_korea_raw = pd.read_excel('Homework/05. draw_korea_raw.xlsx', encoding = 'euc-kr')
 draw_korea_raw
 
 # stack으로 풀고 index로 재설정
@@ -176,14 +186,18 @@ def drawKorea(targetData, blockedMap, cmapname):
 
 # 지도 그리기
 # 커피빈 지도맵
+Coffee_Index.sort_values(by = 'CoffeeBean', ascending = False).head(5)
 drawKorea('CoffeeBean', Coffee_Index, 'Blues')
 
 # 빽다방 지도맵
+Coffee_Index.sort_values(by = 'Paikdabang', ascending = False).head(5)
 drawKorea('Paikdabang', Coffee_Index, 'Blues')
 
 # 스타벅스 지도맵
+Coffee_Index.sort_values(by = 'Starbucks', ascending = False).head(5)
 drawKorea('Starbucks', Coffee_Index, 'Blues')
 
 # 총매장수 지도맵
+Coffee_Index.sort_values(by = '총매장수', ascending = False).head(5)
 drawKorea('총매장수', Coffee_Index, 'Blues')
 
